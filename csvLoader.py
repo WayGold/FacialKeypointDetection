@@ -18,7 +18,6 @@ def load_csv(path):
     """
     _csv = pd.read_csv(path)
     logging.info('{} has length - {}'.format(path, len(_csv)))
-    logging.info('{}'.format(_csv.info()))
     return _csv
 
 
