@@ -31,3 +31,31 @@ class FacialKptsDataSet(Dataset):
 
     def __len__(self):
         return len(self.img_arr)
+
+
+def getTrainValidationDataSet(i_df, train_val_percentage):
+    """
+
+    Args:
+        i_df (pandas.DataFrame):            Input DataFrame to split into training
+                                            and validation set.
+        train_val_percentage (float):       Percentage to split.
+
+    Returns:    (FacialKptsDataSet, FacialKptsDataSet)   -      training set and
+                                                                validation set
+
+    """
+    len_df = len(i_df)
+    rand_idx = list(range(len_df))
+    np.random.shuffle(rand_idx)
+
+    split_idx = int(np.floor(len_df * train_val_percentage))
+    train_idx, val_idx = rand_idx[:split_idx], rand_idx[split_idx:]
+
+    train_df = i_df.iloc[train_idx]
+    val_df = i_df.iloc[val_idx]
+
+    train_dataset = FacialKptsDataSet(train_df)
+    validation_dataset = FacialKptsDataSet(val_df)
+
+    return train_dataset, validation_dataset
