@@ -1,4 +1,5 @@
+__pychache__
 facial-keypoints-detection
 .idea
+.DS_Store
 venv
-__pycache__

@@ -17,7 +17,7 @@ def load_csv(path):
 
     """
     _csv = pd.read_csv(path)
-    logging.info('{} has length - {}'.format(path, len(_csv)))
+    logging.info(f'{path} has length - {len(_csv)}')
     return _csv
 
 
@@ -57,9 +57,9 @@ def clean_csv(i_csv: pd.DataFrame):
     _csv_autoFill = i_csv.ffill()
     _csv_missingOnly = i_csv[i_csv.isna().any(axis=1)]
 
-    logging.info('All Valid Shape - {}\nAuto Fill Shape - {}\nMissing Only Shape - {}'.format(
-        _csv_allValid.shape, _csv_autoFill.shape, _csv_missingOnly.shape
-    ))
+    logging.info(f'All Valid Shape - {_csv_allValid.shape}')
+    logging.info(f'Auto Fill Shape - {_csv_autoFill.shape}')
+    logging.info(f'Missing Only Shape - {_csv_missingOnly.shape}')
 
     return _csv_allValid, _csv_autoFill, _csv_missingOnly
 

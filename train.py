@@ -3,18 +3,15 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 
-def train_model(model, loader_train, optimizer, epochs=1, log_every=100):
+def train_model(model, loader_train, optimizer, loss_fn=F.cross_entropy, epochs=1, log_every=100):
     """
-
     Args:
         model (torch.nn.Sequential):
         loader_train (torch.utils.data.DataLoader):
         optimizer (torch.optim.Optimizer):
         epochs (int):
         log_every (int):
-
     Returns:
-
     """
     USE_GPU, device = check_GPU()
     model = model.to(device=device)  # move the model parameters to CPU/GPU
@@ -26,14 +23,14 @@ def train_model(model, loader_train, optimizer, epochs=1, log_every=100):
                 kpts = kpts.cuda()
 
             prediction = model(img)
-            loss = F.cross_entropy(prediction, kpts)
+            loss = loss_fn(prediction, kpts)
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             if i % log_every == 0:
-                print('Iteration %d, loss = %.4f' % (i, loss.item()))
+                print(f'Iteration {i}, loss = {loss.item():.4f}')
 
 
 def check_GPU():
