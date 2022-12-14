@@ -38,3 +38,10 @@ def rand_vis_dataset(i_dataset, num_vis):
         vis_img_kpts(i_dataset[rand_img][0], i_dataset[rand_img][1])
 
     plt.show()
+
+
+def vis_loss(train_losses, val_losses):
+    plt.tick_params(colors='white')
+    plt.plot(train_losses, label='Training Loss')
+    plt.plot(val_losses, label='Validation Loss')
+    plt.legend(frameon=False)

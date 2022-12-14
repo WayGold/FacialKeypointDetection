@@ -58,4 +58,4 @@ def getTrainValidationDataSt(i_df, train_val_percentage):
     train_dataset = FacialKptsDataSet(train_df)
     validation_dataset = FacialKptsDataSet(val_df)
 
-    return train_dataset, validation_datasete
+    return train_dataset, validation_dataset

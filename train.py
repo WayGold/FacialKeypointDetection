@@ -1,4 +1,5 @@
 import torch
+import visualizer
 import numpy as np
 import torch.optim as optim
 import torch.nn.functional as F
@@ -46,7 +47,7 @@ def train_model(model, loader_train, loader_val, optimizer, scheduler,
             if i % log_every == 0:
                 print(f'Iteration {i}, loss = {loss.item():.4f}')
 
-            val_loss = evaluate(model, loader_val)
+            val_loss = evaluate(model, loader_val, loss_fn)
             scheduler.step(val_loss)
 
         train_losses.append(train_loss / len(loader_train))
@@ -61,8 +62,10 @@ def train_model(model, loader_train, loader_val, optimizer, scheduler,
             torch.save(model.state_dict(), './best_model.pt')
             print('Improvement Detected, Saving to ./best_model.pt')
 
+    visualizer.vis_loss(train_losses, val_losses)
 
-def evaluate(model, val_loader):
+
+def evaluate(model, val_loader, loss_fn):
     if val_loader.dataset.train:
         print('Checking accuracy on validation set')
     else:
@@ -78,7 +81,7 @@ def evaluate(model, val_loader):
                 img = img.cuda()
                 kpts = kpts.cuda()
             prediction = model(img)
-            loss = RMSELoss(prediction, kpts)
+            loss = loss_fn(prediction, kpts)
             val_loss += loss.item()
         print('Total Loss - {}\nAverage Loss - {}'.format(val_loss, val_loss / len(val_loader)))
 
