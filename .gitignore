@@ -3,3 +3,4 @@ facial-keypoints-detection
 .idea
 .DS_Store
 venv
+.ipynb_checkpoints
