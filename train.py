@@ -9,6 +9,7 @@ def train_model(model, loader_train, optimizer, loss_fn=F.cross_entropy, epochs=
         model (torch.nn.Sequential):
         loader_train (torch.utils.data.DataLoader):
         optimizer (torch.optim.Optimizer):
+        loss_fn (callable)
         epochs (int):
         log_every (int):
     Returns:
