@@ -33,7 +33,7 @@ class FacialKptsDataSet(Dataset):
         return len(self.img_arr)
 
 
-def getTrainValidationDataSt(i_df, train_val_percentage):
+def getTrainValidationDataSet(i_df, train_val_percentage):
     """
 
     Args:

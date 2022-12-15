@@ -5,14 +5,17 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 
-def train_model(model, loader_train, loader_val, optimizer, scheduler,
-                loss_fn=F.cross_entropy, epochs=1, log_every=100):
+def RMSELoss(prediction, y):
+    return torch.sqrt(torch.mean((prediction - y) ** 2))
+
+
+def train_model(model, loader_train, loader_val, scheduler=None,
+                loss_fn=RMSELoss, epochs=1, log_every=50):
     """
     Args:
-        model (torch.nn.Sequential):
+        model (torch.nn.Module):
         loader_train (torch.utils.data.DataLoader):
         loader_val (torch.utils.data.DataLoader):
-        optimizer (torch.optim.Optimizer):
         scheduler (torch.optim.lr_scheduler.ReduceLROnPlateau):
         loss_fn (callable)
         epochs (int):
@@ -29,7 +32,7 @@ def train_model(model, loader_train, loader_val, optimizer, scheduler,
         train_loss = 0
         val_loss = 0
 
-        for i, img, kpts in enumerate(loader_train):
+        for i, (img, kpts) in enumerate(loader_train):
             model.float().train()
 
             if USE_GPU:
@@ -39,21 +42,23 @@ def train_model(model, loader_train, loader_val, optimizer, scheduler,
             prediction = model(img)
             loss = loss_fn(prediction, kpts)
 
-            optimizer.zero_grad()
+            model.optim.zero_grad()
             loss.backward()
-            optimizer.step()
+            model.optim.step()
 
             train_loss += loss.item()
-            if i % log_every == 0:
-                print(f'Iteration {i}, loss = {loss.item():.4f}')
+            # if i % log_every == 0:
+            #     print(f'Iteration {i}, loss = {loss.item():.4f}')
 
-            val_loss = evaluate(model, loader_val, loss_fn)
+            val_loss = evaluate(model, loader_val, loss_fn, i, log_every)
+            
+        if scheduler is not None:
             scheduler.step(val_loss)
 
         train_losses.append(train_loss / len(loader_train))
         val_losses.append(val_loss / len(loader_val))
 
-        print("Epoch: {}/{} ".format(e, epochs),
+        print("Epoch: {}/{} ".format(e + 1, epochs),
               "Average Training Loss: {:.4f}".format(train_losses[-1]),
               "Average Val Loss: {:.4f}".format(val_losses[-1]))
 
@@ -65,12 +70,7 @@ def train_model(model, loader_train, loader_val, optimizer, scheduler,
     visualizer.vis_loss(train_losses, val_losses)
 
 
-def evaluate(model, val_loader, loss_fn):
-    if val_loader.dataset.train:
-        print('Checking accuracy on validation set')
-    else:
-        print('Checking accuracy on test set')
-
+def evaluate(model, val_loader, loss_fn, iteration, log_every):
     USE_GPU, device = check_GPU()
     val_loss = 0
 
@@ -83,13 +83,11 @@ def evaluate(model, val_loader, loss_fn):
             prediction = model(img)
             loss = loss_fn(prediction, kpts)
             val_loss += loss.item()
-        print('Total Loss - {}\nAverage Loss - {}'.format(val_loss, val_loss / len(val_loader)))
+
+        # if iteration % log_every == 0:
+        #     print('Total Loss - {}\nAverage Loss - {}'.format(val_loss, val_loss / len(val_loader)))
 
     return val_loss
-
-
-def RMSELoss(prediction, y):
-    return torch.sqrt(torch.mean((prediction - y) ** 2))
 
 
 def check_GPU():
@@ -99,7 +97,5 @@ def check_GPU():
     if torch.cuda.is_available():
         USE_GPU = True
         device = torch.device('cuda')
-
-    print('using device:', device)
 
     return USE_GPU, device

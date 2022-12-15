@@ -41,7 +41,7 @@ def rand_vis_dataset(i_dataset, num_vis):
 
 
 def vis_loss(train_losses, val_losses):
-    plt.tick_params(colors='white')
+    plt.tick_params(colors='black')
     plt.plot(train_losses, label='Training Loss')
     plt.plot(val_losses, label='Validation Loss')
     plt.legend(frameon=False)
