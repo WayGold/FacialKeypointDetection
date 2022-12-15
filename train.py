@@ -1,18 +1,17 @@
 import torch
 import visualizer
 import numpy as np
-import torch.optim as optim
-import torch.nn.functional as F
 
 
 def RMSELoss(prediction, y):
     return torch.sqrt(torch.mean((prediction - y) ** 2))
 
 
-def train_model(model, loader_train, loader_val, scheduler=None,
+def train_model(model, optim, loader_train, loader_val, scheduler=None,
                 loss_fn=RMSELoss, epochs=1, log_every=50):
     """
     Args:
+        optim (torch.optim.Optimizer):
         model (torch.nn.Module):
         loader_train (torch.utils.data.DataLoader):
         loader_val (torch.utils.data.DataLoader):
@@ -20,6 +19,7 @@ def train_model(model, loader_train, loader_val, scheduler=None,
         loss_fn (callable)
         epochs (int):
         log_every (int):
+        lr (float):
     Returns:
     """
     train_losses, val_losses = [], []
@@ -42,16 +42,13 @@ def train_model(model, loader_train, loader_val, scheduler=None,
             prediction = model(img)
             loss = loss_fn(prediction, kpts)
 
-            model.optim.zero_grad()
+            optim.zero_grad()
             loss.backward()
-            model.optim.step()
+            optim.step()
 
             train_loss += loss.item()
-            # if i % log_every == 0:
-            #     print(f'Iteration {i}, loss = {loss.item():.4f}')
+            val_loss = evaluate(model, loader_val, loss_fn)
 
-            val_loss = evaluate(model, loader_val, loss_fn, i, log_every)
-            
         if scheduler is not None:
             scheduler.step(val_loss)
 
@@ -70,7 +67,7 @@ def train_model(model, loader_train, loader_val, scheduler=None,
     visualizer.vis_loss(train_losses, val_losses)
 
 
-def evaluate(model, val_loader, loss_fn, iteration, log_every):
+def evaluate(model, val_loader, loss_fn):
     USE_GPU, device = check_GPU()
     val_loss = 0
 
@@ -83,9 +80,6 @@ def evaluate(model, val_loader, loss_fn, iteration, log_every):
             prediction = model(img)
             loss = loss_fn(prediction, kpts)
             val_loss += loss.item()
-
-        # if iteration % log_every == 0:
-        #     print('Total Loss - {}\nAverage Loss - {}'.format(val_loss, val_loss / len(val_loader)))
 
     return val_loss
 

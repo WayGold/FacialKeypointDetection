@@ -28,6 +28,7 @@ def vis_test():
 
 
 def train_test():
+    lr = 2e-2
     train_csv = cl.load_csv(TRAIN_CSV_PATH)
     print(f'Len of train csv: {len(np.array(train_csv.Image))}')
     csv_allValid, csv_autoFill, csv_missingOnly = cl.clean_csv(train_csv)
@@ -44,9 +45,10 @@ def train_test():
 
     print('Size of training loader batches: {}\nSize of validation loader batches: {}'.format(len(train_loader),
                                                                                               len(val_loader)))
-    fc_model = model.FullyConnectNet(lr=1e-1)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(fc_model.optim, 'min', verbose=True, patience=5)
-    train.train_model(fc_model, train_loader, val_loader, scheduler=scheduler, epochs=50)
+    fc_model = model.FullyConnectedNet()
+    optimizer = optim.Adam(fc_model.parameters(), lr=lr)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
+    train.train_model(fc_model, optimizer, train_loader, val_loader, scheduler=scheduler, epochs=50)
 
 
 if __name__ == '__main__':
