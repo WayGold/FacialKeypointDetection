@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 class PlainBlock(nn.Module):
     def __init__(self, in_channels, out_channels, downsample=False):
         super().__init__()
@@ -45,7 +46,7 @@ class ResNetStage(nn.Module):
 
 
 class ResNetStem(nn.Module):
-    def __init__(self, in_channels=3, out_channels=8):
+    def __init__(self, in_channels, out_channels):
         super().__init__()
         self.model = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
@@ -75,7 +76,6 @@ class ResidualBottleneckBlock(nn.Module):
             self.shortcut = nn.Identity() if in_channels == out_channels else nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0)
         else:
             self.shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=2, padding=0)
-
 
     def forward(self, x):
         x = self.block(x) + self.shortcut(x)

@@ -51,10 +51,9 @@ def clean_csv(i_csv: pd.DataFrame):
 
     Returns:        List[dfs]    -  one with all valid data, second with auto-filled
                                     data and the last with only rows with missing data.
-
     """
     _csv_allValid = i_csv.dropna()
-    _csv_autoFill = i_csv.ffill()
+    _csv_autoFill = i_csv.fillna(0)
     _csv_missingOnly = i_csv[i_csv.isna().any(axis=1)]
 
     logging.info(f'All Valid Shape - {_csv_allValid.shape}')

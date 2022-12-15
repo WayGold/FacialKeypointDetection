@@ -34,8 +34,10 @@ def train_test():
     csv_allValid, csv_autoFill, csv_missingOnly = cl.clean_csv(train_csv)
 
     print('Loading Dataset...')
-    allValid_dataset = dl.FacialKptsDataSet(csv_allValid)
-    allValidTrain, allValidVal = dl.getTrainValidationDataSet(csv_allValid, 0.85)
+    # allValid_dataset = dl.FacialKptsDataSet(csv_allValid)
+    # allValidTrain, allValidVal = dl.getTrainValidationDataSet(csv_allValid, 0.85)
+    allValid_dataset = dl.FacialKptsDataSet(csv_autoFill)
+    allValidTrain, allValidVal = dl.getTrainValidationDataSet(csv_autoFill, 0.85)
 
     train_sampler = SubsetRandomSampler(range(len(allValidTrain)))
     val_sampler = SubsetRandomSampler(range(len(allValidVal)))
@@ -46,9 +48,12 @@ def train_test():
     print('Size of training loader batches: {}\nSize of validation loader batches: {}'.format(len(train_loader),
                                                                                               len(val_loader)))
     fc_model = model.FullyConnectedNet()
+    resnet32_model = model.resnet32()
+    resnet47_model = model.resnet47()
+
     optimizer = optim.Adam(fc_model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
-    train.train_model(fc_model, optimizer, train_loader, val_loader, scheduler=scheduler, epochs=50)
+    train.train_model(fc_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss, to_mask=True, epochs=50)
 
 
 if __name__ == '__main__':
