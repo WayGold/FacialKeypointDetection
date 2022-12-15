@@ -5,7 +5,6 @@ from torchvision import transforms
 
 
 class FacialKptsDataSet(Dataset):
-
     def __init__(self, i_df, transform_func=None, transform_param=None):
         self.img_arr, self.kpts_df = getImgArrAndKptsDf(i_df)
         self.transform_func = transform_func
