@@ -3,12 +3,31 @@ import visualizer
 import numpy as np
 
 
-def RMSELoss(prediction, y):
-    return torch.sqrt(torch.mean((prediction - y) ** 2))
+def create_mask_mat(target):
+    mask_mat = target.clone()
+    mask_mat[target == 0] = 0
+    mask_mat[target != 0] = 1
+    return mask_mat
+
+
+def RMSELoss(output, target, to_mask=False):
+    if to_mask:
+        mask_mat = create_mask_mat(target)
+        residual = torch.square(output - target) * mask_mat
+        return torch.sqrt(torch.sum(residual) / torch.sum(mask_mat))
+    return torch.sqrt(torch.mean(torch.square(output - target)))
+
+
+def MSELoss(output, target, to_mask=False):
+    if to_mask:
+        mask_mat = create_mask_mat(target)
+        residual = torch.square(output - target) * mask_mat
+        return torch.sum(residual) / torch.sum(mask_mat)
+    return torch.mean(torch.square(output - target))
 
 
 def train_model(model, optim, loader_train, loader_val, scheduler=None,
-                loss_fn=RMSELoss, epochs=1, log_every=50):
+                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=50):
     """
     Args:
         optim (torch.optim.Optimizer):
@@ -17,6 +36,7 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
         loader_val (torch.utils.data.DataLoader):
         scheduler (torch.optim.lr_scheduler.ReduceLROnPlateau):
         loss_fn (callable)
+        to_mask (bool)
         epochs (int):
         log_every (int):
         lr (float):
@@ -40,14 +60,14 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
                 kpts = kpts.cuda()
 
             prediction = model(img)
-            loss = loss_fn(prediction, kpts)
+            loss = loss_fn(prediction, kpts, to_mask)
 
             optim.zero_grad()
             loss.backward()
             optim.step()
 
             train_loss += loss.item()
-            val_loss = evaluate(model, loader_val, loss_fn)
+            val_loss = evaluate(model, loader_val, loss_fn, to_mask)
 
         if scheduler is not None:
             scheduler.step(val_loss)
@@ -67,7 +87,7 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
     visualizer.vis_loss(train_losses, val_losses)
 
 
-def evaluate(model, val_loader, loss_fn):
+def evaluate(model, val_loader, loss_fn, to_mask):
     USE_GPU, device = check_GPU()
     val_loss = 0
 
@@ -78,7 +98,7 @@ def evaluate(model, val_loader, loss_fn):
                 img = img.cuda()
                 kpts = kpts.cuda()
             prediction = model(img)
-            loss = loss_fn(prediction, kpts)
+            loss = loss_fn(prediction, kpts, to_mask)
             val_loss += loss.item()
 
     return val_loss

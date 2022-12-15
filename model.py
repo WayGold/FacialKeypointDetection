@@ -22,7 +22,7 @@ class FullyConnectedNet(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, stage_args, in_channels=1, block=ResidualBlock, num_classes=30):
         super().__init__()
-        layers = [ResNetStem(), *[ResNetStage(*stage_arg, block) for stage_arg in stage_args]]
+        layers = [ResNetStem(in_channels, stage_args[0][0]), *[ResNetStage(*stage_arg, block) for stage_arg in stage_args]]
         self.cnn = nn.Sequential(*layers)
         self.fcc = nn.Linear(stage_args[-1][1], num_classes)
 
@@ -43,10 +43,3 @@ def resnet32():
 def resnet47():
     stage_args = [(32, 32, 5, False), (32, 64, 5, True), (64, 128, 5, True)]
     return ResNet(stage_args, block=ResidualBottleneckBlock)
-
-
-if __name__ == '__main__':
-    fully_cc_model = FullyConnectedNet()
-    resnet32_model = resnet32()
-    resnet47_model = resnet47()
-    print(fully_cc_model)
