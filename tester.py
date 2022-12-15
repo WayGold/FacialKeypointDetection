@@ -42,8 +42,8 @@ def train_test():
     train_sampler = SubsetRandomSampler(range(len(allValidTrain)))
     val_sampler = SubsetRandomSampler(range(len(allValidVal)))
 
-    train_loader = torch.utils.data.DataLoader(allValidTrain, batch_size=30, sampler=train_sampler)
-    val_loader = torch.utils.data.DataLoader(allValidVal, batch_size=30, sampler=val_sampler)
+    train_loader = torch.utils.data.DataLoader(allValidTrain, batch_size=128, sampler=train_sampler, num_workers=3)
+    val_loader = torch.utils.data.DataLoader(allValidVal, batch_size=128, sampler=val_sampler, num_workers=3)
 
     print('Size of training loader batches: {}\nSize of validation loader batches: {}'.format(len(train_loader),
                                                                                               len(val_loader)))
@@ -51,9 +51,10 @@ def train_test():
     resnet32_model = model.resnet32()
     resnet47_model = model.resnet47()
 
-    optimizer = optim.Adam(fc_model.parameters(), lr=lr)
+    optimizer = optim.Adam(resnet47_model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
-    train.train_model(fc_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss, to_mask=True, epochs=50)
+    train.train_model(resnet47_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss,
+                      to_mask=True, epochs=50)
 
 
 if __name__ == '__main__':

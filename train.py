@@ -46,18 +46,21 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
     min_val_loss = np.Inf
 
     USE_GPU, device = check_GPU()
+    print('Using Device - {}'.format(device))
     model = model.to(device=device)  # move the model parameters to CPU/GPU
 
     for e in range(epochs):
         train_loss = 0
         val_loss = 0
 
+        print('Starting Epoch: {}/{} '.format(e + 1, epochs))
+
         for i, (img, kpts) in enumerate(loader_train):
             model.float().train()
 
             if USE_GPU:
-                img = img.cuda()
-                kpts = kpts.cuda()
+                img = img.type(torch.float32).cuda()
+                kpts = kpts.type(torch.float32).cuda()
 
             prediction = model(img)
             loss = loss_fn(prediction, kpts, to_mask)
@@ -75,8 +78,7 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
         train_losses.append(train_loss / len(loader_train))
         val_losses.append(val_loss / len(loader_val))
 
-        print("Epoch: {}/{} ".format(e + 1, epochs),
-              "Average Training Loss: {:.4f}".format(train_losses[-1]),
+        print("Average Training Loss: {:.4f}".format(train_losses[-1]),
               "Average Val Loss: {:.4f}".format(val_losses[-1]))
 
         if val_loss < min_val_loss:

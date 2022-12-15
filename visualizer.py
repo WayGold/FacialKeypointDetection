@@ -40,7 +40,41 @@ def rand_vis_dataset(i_dataset, num_vis):
     plt.show()
 
 
+def rand_vis_compare_orig_augset(orig_ds, aug_ds, num_vis):
+    """
+    Given the original and augmented sets, randomly draw corresponding samples.
+
+    Args:
+        orig_ds (FacialKptsDataSet):        Original Dataset
+        aug_ds (FacialKptsDataSet):         Augmented Dataset
+        num_vis (int):                      Num of samples to visualize
+
+    Returns:                                Plots of visualizations
+
+    """
+    fig = plt.figure(figsize=(10, 20))
+    plt.tight_layout()
+
+    for i in range(num_vis):
+        rand_img = np.random.randint(0, len(orig_ds))
+        fig.add_subplot(num_vis, 2, 0)
+        vis_img_kpts(orig_ds[rand_img][0], orig_ds[rand_img][1])
+        fig.add_subplot(num_vis, 2, 1)
+        vis_img_kpts(aug_ds[rand_img][0], aug_ds[rand_img][1])
+
+    plt.show()
+
+
 def vis_loss(train_losses, val_losses):
+    """
+
+    Args:
+        train_losses:
+        val_losses:
+
+    Returns:
+
+    """
     plt.tick_params(colors='black')
     plt.plot(train_losses, label='Training Loss')
     plt.plot(val_losses, label='Validation Loss')
