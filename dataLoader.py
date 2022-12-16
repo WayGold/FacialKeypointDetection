@@ -12,6 +12,7 @@ class FacialKptsDataSet(Dataset):
 
         # Norm to [-1, 1]
         self.transform = transforms.Compose([
+            transforms.ToPILImage(),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5,), std=(0.5,))
         ])

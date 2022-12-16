@@ -27,7 +27,7 @@ def MSELoss(output, target, to_mask=False):
 
 
 def train_model(model, optim, loader_train, loader_val, scheduler=None,
-                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=100):
+                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=30):
     """
     Training Module.
 

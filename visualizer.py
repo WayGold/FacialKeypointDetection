@@ -84,3 +84,18 @@ def vis_loss(train_losses, val_losses):
     plt.plot(val_losses, label='Validation Loss')
     plt.legend(frameon=False)
     plt.show()
+
+
+def vis_predication(img, orig_kpts, pred_kpts):
+    fig = plt.figure(figsize=(10, 20))
+    plt.tight_layout()
+
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(img.reshape(96, 96), cmap='gray')
+    plt.scatter(orig_kpts[::2], orig_kpts[1::2], marker='o', s=100, color='green')
+
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(img.reshape(96, 96), cmap='gray')
+    plt.scatter(pred_kpts[::2], pred_kpts[1::2], marker='x', s=100, color='red')
+
+    plt.show()

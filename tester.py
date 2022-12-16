@@ -8,6 +8,8 @@ import visualizer as vs
 import dataLoader as dl
 import dataAugmentation as da
 import torch.optim as optim
+import torch.nn as nn
+from torchvision import models
 from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler
 
 TRAIN_CSV_PATH = 'facial-keypoints-detection/training/training.csv'
@@ -30,7 +32,7 @@ def vis_test():
 
 
 def train_test():
-    lr = 1e-3
+    lr = 0.0001
     train_csv = cl.load_csv(TRAIN_CSV_PATH)
     print(f'Len of train csv: {len(np.array(train_csv.Image))}')
     csv_allValid, csv_autoFill, csv_missingOnly = cl.clean_csv(train_csv)
@@ -51,17 +53,17 @@ def train_test():
         train_dataset = dl.FacialKptsDataSet(autoFillTrain)
         print('Augmenting training set using mirror...')
         mirror_set = da.create_augs_from_transform(autoFillTrain, da.mirror, params=[None])
-        print('Augmenting training set using noise...')
-        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05])
-        print('Augmenting training set using brightness trim...')
-        brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1])
+        # print('Augmenting training set using noise...')
+        # noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05])
+        # print('Augmenting training set using brightness trim...')
+        # brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1])
         print('Augmenting training set using rotation...')
         rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[30, -30])
 
         all_datasets += [train_dataset]
         all_datasets += mirror_set
-        all_datasets += noise_set
-        all_datasets += brightTrim_set
+        # all_datasets += noise_set
+        # all_datasets += brightTrim_set
         all_datasets += rotation_set
 
         print('Num of datasets after augmentation: {}'.format(len(all_datasets)))
@@ -73,11 +75,11 @@ def train_test():
     print('Num of samples after concatenation: {}'.format(len(train_datasets)))
 
     train_sampler = SubsetRandomSampler(range(len(train_datasets)))
-    val_sampler = SubsetRandomSampler(range(len(val_dataset)))
+    val_sampler = SequentialSampler(range(len(val_dataset)))
 
-    train_loader = torch.utils.data.DataLoader(train_datasets, batch_size=128, sampler=train_sampler, num_workers=2,
+    train_loader = torch.utils.data.DataLoader(train_datasets, batch_size=256, sampler=train_sampler, num_workers=2,
                                                pin_memory=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=128, sampler=val_sampler, num_workers=2,
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=256, sampler=val_sampler, num_workers=2,
                                              pin_memory=True)
 
     print('Size of training loader batches: {}\nSize of validation loader batches: {}'.format(len(train_loader),
@@ -85,8 +87,13 @@ def train_test():
     fc_model = model.FullyConnectedNet()
     resnet32_model = model.resnet32()
     resnet47_model = model.resnet47()
+    resnet50 = models.resnet50(num_classes=30)
 
-    use_model = resnet47_model
+    resnet50.inplanes = 96
+    resnet50.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+
+    use_model = resnet50
 
     optimizer = optim.Adam(use_model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
