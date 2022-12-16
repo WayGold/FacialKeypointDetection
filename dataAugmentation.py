@@ -75,7 +75,7 @@ def brightness_trim(img, kpts, param):
 def rotate(img, kpts, param):
     """
     Create a img with param degree of rotation. Angle(param) is positive for
-    clockwise and negative for counter-clockwise.
+    counter-clockwise and negative for clockwise.
 
     Args:
         img (torch.Tensor):             Input Image
@@ -112,13 +112,14 @@ def rotate(img, kpts, param):
 
 def create_augs_from_transform(i_df, transform, params):
     """
+    Create a list of all augmented datasets.
 
     Args:
-        i_df:
-        transform:
-        params:
+        i_df (pandas.DataFrame):
+        transform (callable):
+        params (list):
 
-    Returns:
+    Returns:            List(FacialKptsDataSet)
 
     """
     augs = []

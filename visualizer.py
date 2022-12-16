@@ -40,28 +40,32 @@ def rand_vis_dataset(i_dataset, num_vis):
     plt.show()
 
 
-def rand_vis_compare_orig_augset(orig_ds, aug_ds, num_vis):
+def rand_vis_compare_orig_augset(orig_ds, aug_ds_list, num_vis):
     """
     Given the original and augmented sets, randomly draw corresponding samples.
 
     Args:
-        orig_ds (FacialKptsDataSet):        Original Dataset
-        aug_ds (FacialKptsDataSet):         Augmented Dataset
-        num_vis (int):                      Num of samples to visualize
+        orig_ds (FacialKptsDataSet):                Original Dataset
+        aug_ds_list (list(FacialKptsDataSet)):      List of Augmented Datasets
+        num_vis (int):                              Num of samples to visualize
 
-    Returns:                                Plots of visualizations
+    Returns:                                        Plots of visualizations
 
     """
     fig = plt.figure(figsize=(10, 20))
     plt.tight_layout()
+    num_datasets = len(aug_ds_list)
 
-    for i in range(num_vis):
-        rand_img = np.random.randint(0, len(orig_ds))
-        fig.add_subplot(num_vis, 2, 0)
-        vis_img_kpts(orig_ds[rand_img][0], orig_ds[rand_img][1])
-        fig.add_subplot(num_vis, 2, 1)
-        vis_img_kpts(aug_ds[rand_img][0], aug_ds[rand_img][1])
-
+    for index, aug_ds in enumerate(aug_ds_list):
+        print('Visualizing dataset #{}...'.format(index))
+        for i in range(num_vis):
+            rand_img = np.random.randint(0, len(orig_ds))
+            # Original Image
+            fig.add_subplot(num_vis * num_datasets, 2, index * num_vis * 2 + (i + 1) * 2 - 1)
+            vis_img_kpts(orig_ds[rand_img][0], orig_ds[rand_img][1])
+            # Augmented Image
+            fig.add_subplot(num_vis * num_datasets, 2, index * num_vis * 2 + (i + 1) * 2)
+            vis_img_kpts(aug_ds[rand_img][0], aug_ds[rand_img][1])
     plt.show()
 
 
