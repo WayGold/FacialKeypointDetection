@@ -27,7 +27,7 @@ def MSELoss(output, target, to_mask=False):
 
 
 def train_model(model, optim, loader_train, loader_val, scheduler=None,
-                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=150):
+                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=100):
     """
     Training Module.
 
@@ -55,18 +55,25 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
         train_loss = 0
 
         print('Starting Epoch: {}/{} '.format(e + 1, epochs))
+        model.float().train()
+        print('Train Mode Set to True.')
 
         for i, (img, kpts) in enumerate(loader_train):
-            model.float().train()
+            if i == 0:
+                print('Starting the first batch...')
 
             if USE_GPU:
                 img = img.type(torch.float32).cuda()
                 kpts = kpts.type(torch.float32).cuda()
 
+            # Zero your gradients for every batch!
+            optim.zero_grad()
+
+            # Make predictions for this batch
             prediction = model(img)
             loss = loss_fn(prediction, kpts, to_mask)
 
-            optim.zero_grad()
+            # Compute the loss and its gradients
             loss.backward()
             optim.step()
 
@@ -75,6 +82,9 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
             if i % log_every == 0:
                 print('Iteration - {}: '.format(i + 1),
                       "Average Training Loss: {:.4f}".format(train_loss / (i + 1)))
+
+        # We don't need gradients on to do reporting
+        model.train(False)
 
         print('Evaluating..')
         val_loss = evaluate(model, loader_val, loss_fn, to_mask)

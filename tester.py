@@ -1,3 +1,4 @@
+import os
 import torch
 import train
 import model
@@ -29,7 +30,7 @@ def vis_test():
 
 
 def train_test():
-    lr = 1e-2
+    lr = 1e-3
     train_csv = cl.load_csv(TRAIN_CSV_PATH)
     print(f'Len of train csv: {len(np.array(train_csv.Image))}')
     csv_allValid, csv_autoFill, csv_missingOnly = cl.clean_csv(train_csv)
@@ -40,29 +41,35 @@ def train_test():
     autoFillTrain, autoFillVal = dl.getTrainValidationDataSet(csv_autoFill, 0.85)
     val_dataset = dl.FacialKptsDataSet(autoFillVal)
 
-    # Data Augmentation
-    all_datasets = []
-    print('Loading training set...')
-    train_dataset = dl.FacialKptsDataSet(autoFillTrain)
-    print('Augmenting training set using mirror...')
-    mirror_set = da.create_augs_from_transform(autoFillTrain, da.mirror, params=[None])
-    print('Augmenting training set using noise...')
-    noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.008, 0.02])
-    print('Augmenting training set using brightness trim...')
-    brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1, 0.5, -0.5])
-    print('Augmenting training set using rotation...')
-    rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[20, -20, 10, -10])
+    if os.path.exists('./Aug_set.pt'):
+        print('Pre-saved aug data set found, loading...')
+        train_datasets = torch.load('./Aug_set.pt')
+    else:
+        # Data Augmentation
+        all_datasets = []
+        print('Loading training set...')
+        train_dataset = dl.FacialKptsDataSet(autoFillTrain)
+        print('Augmenting training set using mirror...')
+        mirror_set = da.create_augs_from_transform(autoFillTrain, da.mirror, params=[None])
+        print('Augmenting training set using noise...')
+        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05])
+        print('Augmenting training set using brightness trim...')
+        brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1])
+        print('Augmenting training set using rotation...')
+        rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[30, -30])
 
-    all_datasets += [train_dataset]
-    all_datasets += mirror_set
-    all_datasets += noise_set
-    all_datasets += brightTrim_set
-    all_datasets += rotation_set
+        all_datasets += [train_dataset]
+        all_datasets += mirror_set
+        all_datasets += noise_set
+        all_datasets += brightTrim_set
+        all_datasets += rotation_set
 
-    print('Num of datasets after augmentation: {}'.format(len(all_datasets)))
+        print('Num of datasets after augmentation: {}'.format(len(all_datasets)))
 
-    print('Concatenating all sets...')
-    train_datasets = torch.utils.data.ConcatDataset(all_datasets)
+        print('Concatenating all sets...')
+        train_datasets = torch.utils.data.ConcatDataset(all_datasets)
+        torch.save(train_datasets, './Aug_set.pt')
+
     print('Num of samples after concatenation: {}'.format(len(train_datasets)))
 
     train_sampler = SubsetRandomSampler(range(len(train_datasets)))
@@ -79,9 +86,11 @@ def train_test():
     resnet32_model = model.resnet32()
     resnet47_model = model.resnet47()
 
-    optimizer = optim.Adam(resnet47_model.parameters(), lr=lr)
+    use_model = resnet47_model
+
+    optimizer = optim.Adam(use_model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
-    train.train_model(resnet47_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss,
+    train.train_model(use_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss,
                       to_mask=True, epochs=50)
 
 
