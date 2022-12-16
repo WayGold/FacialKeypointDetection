@@ -113,9 +113,11 @@ def evaluate(model, val_loader, loss_fn, to_mask):
     with torch.no_grad():
         model.eval()
         for img, kpts in val_loader:
+            
             if USE_GPU:
                 img = img.cuda()
                 kpts = kpts.cuda()
+
             prediction = model(img)
             loss = loss_fn(prediction, kpts, to_mask)
             val_loss += loss.item()

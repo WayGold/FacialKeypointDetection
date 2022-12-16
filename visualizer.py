@@ -86,16 +86,17 @@ def vis_loss(train_losses, val_losses):
     plt.show()
 
 
-def vis_predication(img, orig_kpts, pred_kpts):
+def vis_predication(imgs, pred_kpts, orig_kpts=None):
     fig = plt.figure(figsize=(10, 20))
     plt.tight_layout()
 
-    fig.add_subplot(1, 2, 1)
-    plt.imshow(img.reshape(96, 96), cmap='gray')
-    plt.scatter(orig_kpts[::2], orig_kpts[1::2], marker='o', s=100, color='green')
-
-    fig.add_subplot(1, 2, 2)
-    plt.imshow(img.reshape(96, 96), cmap='gray')
-    plt.scatter(pred_kpts[::2], pred_kpts[1::2], marker='x', s=100, color='red')
+    for i in range(8):
+        fig.add_subplot(4, 4, i + 1)
+        plt.imshow(imgs[i].reshape(96, 96), cmap='gray')
+        plt.axis('off')
+        plt.tight_layout()
+        plt.scatter(pred_kpts[i][::2], pred_kpts[i][1::2], marker='x', color='green', s=50)
+        if orig_kpts is not None:
+            plt.scatter(orig_kpts[i][::2], orig_kpts[i][1::2], marker='o', color='red', s=50)
 
     plt.show()
