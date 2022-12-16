@@ -40,8 +40,8 @@ def getTrainValidationDataSet(i_df, train_val_percentage):
                                             and validation set.
         train_val_percentage (float):       Percentage to split.
 
-    Returns:    (FacialKptsDataSet, FacialKptsDataSet)   -      training set and
-                                                                validation set
+    Returns:    (pandas.DataFrame, pandas.DataFrame)   -    training set and
+                                                            validation set
 
     """
     len_df = len(i_df)
@@ -54,7 +54,4 @@ def getTrainValidationDataSet(i_df, train_val_percentage):
     train_df = i_df.iloc[train_idx]
     val_df = i_df.iloc[val_idx]
 
-    train_dataset = FacialKptsDataSet(train_df)
-    validation_dataset = FacialKptsDataSet(val_df)
-
-    return train_dataset, validation_dataset
+    return train_df, val_df

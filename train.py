@@ -27,7 +27,7 @@ def MSELoss(output, target, to_mask=False):
 
 
 def train_model(model, optim, loader_train, loader_val, scheduler=None,
-                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=50):
+                loss_fn=MSELoss, to_mask=False, epochs=1, log_every=150):
     """
     Training Module.
 
@@ -53,7 +53,6 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
 
     for e in range(epochs):
         train_loss = 0
-        val_loss = 0
 
         print('Starting Epoch: {}/{} '.format(e + 1, epochs))
 
@@ -72,7 +71,13 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
             optim.step()
 
             train_loss += loss.item()
-            val_loss = evaluate(model, loader_val, loss_fn, to_mask)
+
+            if i % log_every == 0:
+                print('Iteration - {}: '.format(i + 1),
+                      "Average Training Loss: {:.4f}".format(train_loss / (i + 1)))
+
+        print('Evaluating..')
+        val_loss = evaluate(model, loader_val, loss_fn, to_mask)
 
         if scheduler is not None:
             scheduler.step(val_loss)
