@@ -29,6 +29,8 @@ def MSELoss(output, target, to_mask=False):
 def train_model(model, optim, loader_train, loader_val, scheduler=None,
                 loss_fn=MSELoss, to_mask=False, epochs=1, log_every=50):
     """
+    Training Module.
+
     Args:
         optim (torch.optim.Optimizer):
         model (torch.nn.Module):
@@ -39,7 +41,7 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
         to_mask (bool)
         epochs (int):
         log_every (int):
-        lr (float):
+
     Returns:
     """
     train_losses, val_losses = [], []

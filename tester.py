@@ -42,8 +42,8 @@ def train_test():
     train_sampler = SubsetRandomSampler(range(len(allValidTrain)))
     val_sampler = SubsetRandomSampler(range(len(allValidVal)))
 
-    train_loader = torch.utils.data.DataLoader(allValidTrain, batch_size=128, sampler=train_sampler, num_workers=3)
-    val_loader = torch.utils.data.DataLoader(allValidVal, batch_size=128, sampler=val_sampler, num_workers=3)
+    train_loader = torch.utils.data.DataLoader(allValidTrain, batch_size=128, sampler=train_sampler, num_workers=4)
+    val_loader = torch.utils.data.DataLoader(allValidVal, batch_size=128, sampler=val_sampler, num_workers=4)
 
     print('Size of training loader batches: {}\nSize of validation loader batches: {}'.format(len(train_loader),
                                                                                               len(val_loader)))
