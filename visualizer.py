@@ -95,8 +95,8 @@ def vis_predication(imgs, pred_kpts, orig_kpts=None):
         plt.imshow(imgs[i].reshape(96, 96), cmap='gray')
         plt.axis('off')
         plt.tight_layout()
-        plt.scatter(pred_kpts[i][::2], pred_kpts[i][1::2], marker='x', color='green', s=50)
         if orig_kpts is not None:
             plt.scatter(orig_kpts[i][::2], orig_kpts[i][1::2], marker='o', color='red', s=50)
+        plt.scatter(pred_kpts[i][::2], pred_kpts[i][1::2], marker='x', color='green', s=50)
 
     plt.show()

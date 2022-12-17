@@ -32,7 +32,7 @@ def vis_test():
 
 
 def train_test():
-    lr = 2e-4
+    lr = 1e-3
     train_csv = cl.load_csv(TRAIN_CSV_PATH)
     print(f'Len of train csv: {len(np.array(train_csv.Image))}')
     csv_allValid, csv_autoFill, csv_missingOnly = cl.clean_csv(train_csv)
@@ -54,17 +54,17 @@ def train_test():
         print('Augmenting training set using mirror...')
         mirror_set = da.create_augs_from_transform(autoFillTrain, da.mirror, params=[None])
         print('Augmenting training set using noise...')
-        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05])
+        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05, 0.1])
         print('Augmenting training set using brightness trim...')
         brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1])
-        # print('Augmenting training set using rotation...')
-        # rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[30, -30])
+        print('Augmenting training set using rotation...')
+        rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[15, -15])
 
         all_datasets += [train_dataset]
         all_datasets += mirror_set
         all_datasets += noise_set
         all_datasets += brightTrim_set
-        # all_datasets += rotation_set
+        all_datasets += rotation_set
 
         print('Num of datasets after augmentation: {}'.format(len(all_datasets)))
 
@@ -96,9 +96,9 @@ def train_test():
     use_model = resnet50
 
     optimizer = optim.Adam(use_model.parameters(), lr=lr, weight_decay=5e-4)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=8)
     train.train_model(use_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss,
-                      to_mask=True, epochs=50)
+                      to_mask=False, epochs=150)
 
 
 if __name__ == '__main__':
