@@ -33,7 +33,7 @@ def getImgArrAndKptsDf(i_df):
     """
     # Get img data
     img_arr = np.array(i_df.Image)
-    print(f'Size of Image Array - {len(img_arr)}')
+    # print(f'Size of Image Array - {len(img_arr)}')
     for i in range(len(img_arr)):
         img_arr[i] = np.fromstring(img_arr[i], sep=' ')
 

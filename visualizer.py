@@ -52,7 +52,7 @@ def rand_vis_compare_orig_augset(orig_ds, aug_ds_list, num_vis):
     Returns:                                        Plots of visualizations
 
     """
-    fig = plt.figure(figsize=(10, 20))
+    fig = plt.figure(figsize=(10, 10))
     plt.tight_layout()
     num_datasets = len(aug_ds_list)
 
