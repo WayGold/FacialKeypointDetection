@@ -87,10 +87,11 @@ def vis_loss(train_losses, val_losses):
 
 
 def vis_predication(imgs, pred_kpts, orig_kpts=None):
-    fig = plt.figure(figsize=(10, 20))
+    fig = plt.figure(figsize=(10, 10))
     plt.tight_layout()
 
     for i in range(8):
+        plt.tight_layout()
         fig.add_subplot(4, 4, i + 1)
         plt.imshow(imgs[i].reshape(96, 96), cmap='gray')
         plt.axis('off')

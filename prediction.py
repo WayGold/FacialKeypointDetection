@@ -9,9 +9,13 @@ def loadModel(path, model_class):
     return model
 
 
-def predict(model, imgs, kpts=None, vis=True):
+def predict(model, imgs, kpts=None, vis=True, comp_kpts=None):
     with torch.no_grad():
         pred_kpts = model(imgs)
     if vis:
-        visualizer.vis_predication(imgs, pred_kpts, kpts)
+        if comp_kpts is not None:
+            visualizer.vis_predication(imgs, pred_kpts, comp_kpts)
+        else:
+            visualizer.vis_predication(imgs, pred_kpts, kpts)
+
     return pred_kpts

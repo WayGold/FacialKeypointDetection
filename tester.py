@@ -93,7 +93,7 @@ def train_test():
     resnet50.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
 
-    use_model = resnet50
+    use_model = fc_model
 
     optimizer = optim.Adam(use_model.parameters(), lr=lr, weight_decay=5e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=8)
