@@ -5,3 +5,7 @@ facial-keypoints-detection
 venv
 .ipynb_checkpoints
 Aug_set.pt
+fcnetLosses.zip
+resnetLosses.zip
+train-data.csv
+val-data.csv

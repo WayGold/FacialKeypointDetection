@@ -103,6 +103,12 @@ def train_model(model, optim, loader_train, loader_val, scheduler=None,
             torch.save(model.state_dict(), './best_model.pt')
             print('Improvement Detected, Saving to ./best_model.pt')
 
+    train_vals = np.asarray(train_losses)
+    train_vals.tofile('train-data.csv', sep=',')
+
+    val_vals = np.asarray(val_losses)
+    val_vals.tofile('val-data.csv', sep=',')
+
     visualizer.vis_loss(train_losses, val_losses)
 
 
@@ -113,7 +119,7 @@ def evaluate(model, val_loader, loss_fn, to_mask):
     with torch.no_grad():
         model.eval()
         for img, kpts in val_loader:
-            
+
             if USE_GPU:
                 img = img.cuda()
                 kpts = kpts.cuda()

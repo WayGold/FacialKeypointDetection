@@ -33,6 +33,7 @@ def getImgArrAndKptsDf(i_df):
     """
     # Get img data
     img_arr = np.array(i_df.Image)
+    print(f'Size of Image Array - {len(img_arr)}')
     for i in range(len(img_arr)):
         img_arr[i] = np.fromstring(img_arr[i], sep=' ')
 
@@ -52,13 +53,13 @@ def clean_csv(i_csv: pd.DataFrame):
     Returns:        List[dfs]    -  one with all valid data, second with auto-filled
                                     data and the last with only rows with missing data.
     """
-    _csv_allValid = i_csv.dropna()
     _csv_autoFill = i_csv.fillna(0)
+    _csv_allValid = i_csv.dropna()
     _csv_missingOnly = i_csv[i_csv.isna().any(axis=1)]
 
-    logging.info(f'All Valid Shape - {_csv_allValid.shape}')
-    logging.info(f'Auto Fill Shape - {_csv_autoFill.shape}')
-    logging.info(f'Missing Only Shape - {_csv_missingOnly.shape}')
+    print(f'All Valid Shape - {_csv_allValid.shape}')
+    print(f'Auto Fill Shape - {_csv_autoFill.shape}')
+    print(f'Missing Only Shape - {_csv_missingOnly.shape}')
 
     return _csv_allValid, _csv_autoFill, _csv_missingOnly
 

@@ -40,7 +40,7 @@ def train_test():
     print('Loading Dataset...')
     # allValid_dataset = dl.FacialKptsDataSet(csv_allValid)
     # allValidTrain, allValidVal = dl.getTrainValidationDataSet(csv_allValid, 0.85)
-    autoFillTrain, autoFillVal = dl.getTrainValidationDataSet(csv_allValid, 0.85)
+    autoFillTrain, autoFillVal = dl.getTrainValidationDataSet(csv_allValid, 0.75)
     val_dataset = dl.FacialKptsDataSet(autoFillVal)
 
     if os.path.exists('./Aug_set.pt'):
@@ -51,14 +51,22 @@ def train_test():
         all_datasets = []
         print('Loading training set...')
         train_dataset = dl.FacialKptsDataSet(autoFillTrain)
+        print('Size of set: {}'.format(len(train_dataset)))
+
         print('Augmenting training set using mirror...')
         mirror_set = da.create_augs_from_transform(autoFillTrain, da.mirror, params=[None])
+        print('Size of set: {}'.format(len(mirror_set[0])))
+
         print('Augmenting training set using noise...')
-        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.05, 0.1])
+        noise_set = da.create_augs_from_transform(autoFillTrain, da.add_noise, params=[0.1, 0.08])
+        print('Size of set: {}'.format(len(noise_set[0])))
+
         print('Augmenting training set using brightness trim...')
-        brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[1, -1])
+        brightTrim_set = da.create_augs_from_transform(autoFillTrain, da.brightness_trim, params=[0.7, -0.7])
+        print('Size of set: {}'.format(len(brightTrim_set[0])))
+
         print('Augmenting training set using rotation...')
-        rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[15, -15])
+        rotation_set = da.create_augs_from_transform(autoFillTrain, da.rotate, params=[10, -10, 5, -5])
 
         all_datasets += [train_dataset]
         all_datasets += mirror_set
@@ -93,12 +101,12 @@ def train_test():
     resnet50.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
 
-    use_model = fc_model
+    use_model = resnet50
 
     optimizer = optim.Adam(use_model.parameters(), lr=lr, weight_decay=5e-4)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=8)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience=5)
     train.train_model(use_model, optimizer, train_loader, val_loader, scheduler=scheduler, loss_fn=train.RMSELoss,
-                      to_mask=False, epochs=150)
+                      to_mask=False, epochs=50)
 
 
 if __name__ == '__main__':
